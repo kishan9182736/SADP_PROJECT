@@ -1,0 +1,23 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9999:9999"
+    container_name: java-patterns-backend
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3000:80"                  # ← Changed from 8080 to 3000 (free port)
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    container_name: patterns-demo-frontend
+    depends_on:
+      - backend
+    restart: unless-stopped

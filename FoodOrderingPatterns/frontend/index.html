@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food Ordering - Design Patterns Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5;
+            margin: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; text-align: center; margin-bottom: 10px; }
+        p.subtitle { text-align: center; color: #666; margin-top: 0; }
+        .pattern { 
+            background: #f8f9fa; 
+            padding: 18px; 
+            margin: 15px 0; 
+            border-left: 5px solid #4CAF50;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 18px;
+            margin: 6px 4px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.3s;
+        }
+        button:hover { background: #45a049; }
+        button.big {
+            background: #2196F3;
+            padding: 14px 30px;
+            font-size: 18px;
+        }
+        button.big:hover { background: #0b7dda; }
+        .output {
+            background: #2c3e50;
+            color: #00ff9d;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 8px;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        .status {
+            background: #e8f4f8;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        code {
+            background: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍕 Food Ordering System</h1>
+        <p class="subtitle">Design Patterns Demo – Java Backend + HTML Frontend</p>
+        
+        <div class="status" id="status">
+            <strong>Server Status:</strong> <span id="serverStatus">Checking...</span>
+            <button onclick="testConnection()">Test Connection</button>
+        </div>
+        
+        <div class="pattern">
+            <h3>🏭 1. Factory Pattern</h3>
+            <button onclick="sendRequest('factory:pizza')">Create Pizza</button>
+            <button onclick="sendRequest('factory:burger')">Create Burger</button>
+        </div>
+        
+        <div class="pattern">
+            <h3>📝 2. Command Pattern</h3>
+            <button onclick="sendRequest('command')">Execute Order Command</button>
+        </div>
+        
+        <div class="pattern">
+            <h3>🔔 3. Observer Pattern</h3>
+            <button onclick="sendRequest('observer')">Notify Customers</button>
+        </div>
+        
+        <div class="pattern">
+            <h3>🔒 4. Singleton Pattern</h3>
+            <button onclick="sendRequest('singleton')">Get OrderManager Instance</button>
+        </div>
+        
+        <div class="pattern">
+            <h3>🔌 5. Adapter Pattern</h3>
+            <button onclick="sendRequest('adapter')">Convert JSON → XML</button>
+        </div>
+        
+        <div class="pattern">
+            <h3>💳 6. Strategy Pattern</h3>
+            <button onclick="sendRequest('strategy:card')">Pay by Card</button>
+            <button onclick="sendRequest('strategy:cash')">Pay by Cash</button>
+        </div>
+        
+        <div style="text-align:center; margin:30px 0;">
+            <button onclick="sendRequest('all')" class="big">
+                🚀 Run All Patterns
+            </button>
+        </div>
+        
+        <div class="output">
+            <strong>Java Backend Response:</strong>
+            <div id="response" style="margin-top:12px;">
+                Waiting for action... Click any button above!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamically works both locally and in Docker
+        const SERVER_URL = `${window.location.protocol}//${window.location.hostname}:9999`;
+
+        const serverStatus = document.getElementById('serverStatus');
+        const responseDiv = document.getElementById('response');
+
+        function testConnection() {
+            sendRequest('test', true);
+        }
+
+        function sendRequest(request, isTest = false) {
+            if (!isTest) {
+                responseDiv.innerHTML = `Sending: <strong>${request}</strong>...`;
+            } else {
+                responseDiv.innerHTML = 'Testing connection to Java backend...';
+            }
+
+            fetch(`${SERVER_URL}/?request=${encodeURIComponent(request)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Not reachable');
+                    serverStatus.innerHTML = '<span style="color:green">✅ Connected</span>';
+                    return res.text();
+                })
+                .then(data => {
+                    responseDiv.innerHTML = data.trim();
+                })
+                .catch(err => {
+                    serverStatus.innerHTML = '<span style="color:red">❌ Not connected</span>';
+                    responseDiv.innerHTML = `
+<span style="color:red">Error: Cannot reach Java server</span><br><br>
+Make sure the backend is running:<br>
+<code>docker compose up</code>`;
+                });
+        }
+
+        // Auto test on page load
+        window.onload = () => setTimeout(testConnection, 800);
+    </script>
+</body>
+</html>
